@@ -40,3 +40,20 @@ Tecnologias utilizadas en el proyecto
 
 Estado del proyecto
     Actualmente el proyecto se encuentra en proceso de diseño y de estructuradocion.
+
+Casos de uso del MVP
+    ·Registrarse
+    ·Iniciar sesion
+    ·Agregar videojuegos a su libreria personal
+    ·Buscar videojuegos
+    ·Ver su biblioteca
+    ·Cambiar de estados de los videojuegos de su biblioteca
+    ·Eliminar un juego de su biblioteca
+
+Entidades y sus relaciones del MVP
+    User
+        Usuario que puede registrarse e iniciar sesion.
+    Game
+        Videojuego el la registrado en el sistema.
+    GameUser
+        Los usuarios pueden tener cero, uno o multiple videojuegos agregados y los videojuegos pueden tener cero, uno o multiples usuarios que lo agregaron. 
