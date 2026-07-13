@@ -8,4 +8,6 @@ public class Game
     public string? CoverUrl {get;set;}
     public DateTime? ReleaseDate {get;set;}
 
+    public ICollection<UserGame> UserGames { get; set; } = new List<UserGame>();
+
 }

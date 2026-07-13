@@ -9,4 +9,6 @@ public class User
     public string PasswordHash {get;set;}
     public DateTime CreatedAt {get;set;}
 
+    public ICollection<UserGame> UserGames { get; set; } = new List<UserGame>();
+
 }

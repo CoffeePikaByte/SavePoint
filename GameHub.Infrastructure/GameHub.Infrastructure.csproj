@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GameHub.Application\GameHub.Application.csproj" />
+    <ProjectReference Include="..\GameHub.Domain\GameHub.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
