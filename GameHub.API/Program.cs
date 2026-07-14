@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using GameHub.Application.Interfaces.Repositories;
 using GameHub.Infrastructure.Persistence.Repositories;
 using GameHub.Application.UserCases;
+using GameHub.Application.Interfaces.Services;  
+using GameHub.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,8 +23,10 @@ builder.Services.AddDbContext<GameHubDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<RegisterUserCase>();
+builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
 var app = builder.Build();
 
