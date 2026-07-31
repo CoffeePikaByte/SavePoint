@@ -9,10 +9,14 @@ namespace GameHub.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly RegisterUserCase _registerUserCase;
+        private readonly LoginUserUseCase _loginUserUseCase;
 
-        public AuthController(RegisterUserCase registerUserCase)
+        public AuthController(
+            RegisterUserCase registerUserCase,
+            LoginUserUseCase loginUserUseCase)
         {
             _registerUserCase = registerUserCase;
+            _loginUserUseCase = loginUserUseCase;
         }
 
         [HttpPost("register")]
@@ -35,6 +39,22 @@ namespace GameHub.API.Controllers
                 return Conflict(new { message = ex.Message });
             }
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginUserRequest request)
+        {
+            try
+            {
+                var token = await _loginUserUseCase.ExecuteAsync(request.Email, request.Password);
+
+                return Ok(new { token });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+        }
+
     }
 
 }

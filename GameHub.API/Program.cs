@@ -5,6 +5,8 @@ using GameHub.Infrastructure.Persistence.Repositories;
 using GameHub.Application.UserCases;
 using GameHub.Application.Interfaces.Services;  
 using GameHub.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,23 @@ builder.Services.AddDbContext<GameHubDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<RegisterUserCase>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+builder.Services.AddScoped<ITokenService, JwtTokenService>();
+builder.Services.AddScoped<LoginUserUseCase>();
+
+builder.Services.AddAuthentication(
+    JwtBearerDefaults.AuthenticationScheme) 
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+        new TokenValidationParameters
+        {
+          ValidateIssuerSigningKey = true,
+          ValidateIssuer = true, 
+          ValidateAudience = true,
+          ValidateLifetime = true,            
+        };
+
+    });
 
 var app = builder.Build();
 

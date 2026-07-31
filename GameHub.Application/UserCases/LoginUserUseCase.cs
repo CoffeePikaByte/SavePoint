@@ -20,6 +20,30 @@ public class LoginUserUseCase
     
 
 
+    public async Task<string> ExecuteAsync(string email, string password)
+    {
+        
+        var user = await _userRepository.GetByEmailAsync(email);
+
+        if(user is null)    
+        {
+            throw new Exception("Usuario no encontrado.");  
+        }
+
+        var isPasswordValid = _passwordHasher.VerifyPassword(
+            password, 
+            user.PasswordHash);
+        
+        if(!isPasswordValid)
+        {
+            throw new Exception("Contraseña incorrecta.");
+        }
+
+        var token = _tokenService.GenerateToken(user);
+
+        return token;
+    }
+
 
 
 }
