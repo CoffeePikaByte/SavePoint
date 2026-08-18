@@ -7,6 +7,7 @@ using GameHub.Application.Interfaces.Services;
 using GameHub.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,10 @@ builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<LoginUserUseCase>();
 
+var secretKey = builder.Configuration["Jwt:SecretKey"];
+var issuer = builder.Configuration["Jwt:Issuer"];
+var audience = builder.Configuration["Jwt:Audience"];
+
 builder.Services.AddAuthentication(
     JwtBearerDefaults.AuthenticationScheme) 
     .AddJwtBearer(options =>
@@ -40,14 +45,24 @@ builder.Services.AddAuthentication(
         new TokenValidationParameters
         {
           ValidateIssuerSigningKey = true,
-          ValidateIssuer = true, 
+          IssuerSigningKey =  new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(secretKey!)),
+
+          ValidateIssuer = true,
+          ValidIssuer = issuer,
+
           ValidateAudience = true,
+          ValidAudience = audience,  
+
           ValidateLifetime = true,            
         };
 
     });
 
+
+
 var app = builder.Build();
+
 
 
 // Configure the HTTP request pipeline.
@@ -58,6 +73,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

@@ -41,11 +41,11 @@ public class JwtTokenService : ITokenService
 
 
         var token = new JwtSecurityToken(
-            issuer,
-            audience,
-            claims,
-            expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
-            signingCredentials: credentials
+                issuer,
+                audience,
+                claims,
+                expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
+                signingCredentials: credentials
             );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
