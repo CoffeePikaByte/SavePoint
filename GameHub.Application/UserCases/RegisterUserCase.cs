@@ -22,12 +22,13 @@ public class RegisterUserCase
     {
         var existingUser = await _userRepository.GetByEmailAsync(email);
 
-        var passwordHash = _passwordHasher.Hash(password);
 
         if(existingUser is not null)
         {
             throw new Exception("Ya existe un usuario con este email.");
         }
+
+        var passwordHash = _passwordHasher.Hash(password);
 
         var user = new User
         {
