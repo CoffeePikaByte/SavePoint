@@ -2,6 +2,7 @@
 using GameHub.Application.Interfaces.Repositories;
 using GameHub.Domain.Entities;
 using GameHub.Application.DTOs.Users;
+using GameHub.Application.Exceptions;
 
 namespace GameHub.Application.UserCases;
 
@@ -23,7 +24,7 @@ public class GetUserProfileUseCase
 
         if(user is null)    
         {
-            throw new Exception("Usuario no encontrado.");  
+            throw new UserNotFoundException("Usuario no encontrado.");  
         }
 
         return new UserProfileDTO

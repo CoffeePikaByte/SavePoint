@@ -1,6 +1,7 @@
 using GameHub.Application.Interfaces.Repositories;
 using GameHub.Domain.Entities;
 using GameHub.Application.Interfaces.Services;
+using GameHub.Application.Exceptions;
 
 namespace GameHub.Application.UserCases;
 
@@ -25,7 +26,7 @@ public class RegisterUserCase
 
         if(existingUser is not null)
         {
-            throw new Exception("Ya existe un usuario con este email.");
+            throw new UserAlreadyExistsException("Ya existe un usuario con este email.");
         }
 
         var passwordHash = _passwordHasher.Hash(password);

@@ -27,7 +27,7 @@ public class LoginUserUseCase
 
         if(user is null)    
         {
-            throw new Exception("Usuario no encontrado.");  
+            throw new Exception("User not found.");  
         }
 
         var isPasswordValid = _passwordHasher.VerifyPassword(
@@ -36,7 +36,7 @@ public class LoginUserUseCase
         
         if(!isPasswordValid)
         {
-            throw new Exception("Contraseña incorrecta.");
+            throw new Exception("Password is incorrect.");
         }
 
         var token = _tokenService.GenerateToken(user);

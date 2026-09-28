@@ -22,37 +22,23 @@ namespace GameHub.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterUserRequest request)
         {
-            try
-            {
-                await _registerUserCase.ExecuteAsync(
-                    request.UserName,
-                    request.Email,
-                    request.Password);
+            await _registerUserCase.ExecuteAsync(
+                request.UserName,
+                request.Email,
+                request.Password);
 
-                return Created(string.Empty, new
-                {
-                    message = "User created successfully."
-                });
-            }   
-            catch (Exception ex)
+            return Created(string.Empty, new
             {
-                return Conflict(new { message = ex.Message });
-            }
+                message = "User created successfully."
+            });
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginUserRequest request)
         {
-            try
-            {
-                var token = await _loginUserUseCase.ExecuteAsync(request.Email, request.Password);
+            var token = await _loginUserUseCase.ExecuteAsync(request.Email, request.Password);
 
-                return Ok(new { token });
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized(new { message = ex.Message });
-            }
+            return Ok(new { token });
         }
 
     }

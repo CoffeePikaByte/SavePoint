@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using GameHub.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,9 +92,12 @@ builder.Services.AddAuthentication(
 
 var app = builder.Build();
 
-
-
 // Configure the HTTP request pipeline.
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
