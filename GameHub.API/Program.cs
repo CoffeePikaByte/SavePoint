@@ -61,6 +61,8 @@ builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<LoginUserUseCase>();
 builder.Services.AddScoped<GetUserProfileUseCase>();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<CreateGameUseCase>();
 
 var secretKey = builder.Configuration["Jwt:SecretKey"];
 var issuer = builder.Configuration["Jwt:Issuer"];

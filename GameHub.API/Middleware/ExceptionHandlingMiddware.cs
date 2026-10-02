@@ -5,9 +5,11 @@ namespace GameHub.API.Middleware;
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
-    public ExceptionHandlingMiddleware(RequestDelegate next)
+    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
     {
+        _logger = logger;
         _next = next; 
     }
 
@@ -36,6 +38,11 @@ public class ExceptionHandlingMiddleware
                 });
             }else
             {
+                _logger.LogError(
+                    ex,
+                    "Ocurrio un error inesperado."
+                );
+
                 context.Response.StatusCode = 500;
                 await context.Response.WriteAsJsonAsync(new 
                 {

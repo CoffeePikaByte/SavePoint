@@ -18,6 +18,7 @@ namespace GameHub.API.Controllers
             _getUserProfileUseCase = getUserProfileUseCase;
         }
 
+     
         [HttpGet("profile")]
         [Authorize]
         public async Task<IActionResult> GetProfile()
