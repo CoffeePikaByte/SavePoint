@@ -1,5 +1,6 @@
 using GameHub.Application.UserCases;
-using GameHub.API.Models;
+using Microsoft.AspNetCore.Mvc;
+using GameHub.Domain.Entities;
 
 
 namespace GameHub.API.Controllers
@@ -16,19 +17,11 @@ namespace GameHub.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateGameRequest request)
+        public async Task<IActionResult> Create([FromQuery] int externalId)
         {
-            await _createGameUseCase.ExecuteAsync(
-                request.ExternalId,
-                request.Title,
-                request.CoverUrl,
-                request.ReleaseDate
-            );
+            Game game = await _createGameUseCase.ExecuteAsync(externalId);
 
-            return Created(string.Empty, new 
-            {
-                message = "Game add successfully."
-            });
+            return Created(string.Empty, game);
 
         }
 

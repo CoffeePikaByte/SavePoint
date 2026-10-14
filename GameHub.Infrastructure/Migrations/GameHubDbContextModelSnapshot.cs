@@ -35,7 +35,7 @@ namespace GameHub.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ReleaseDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("date");
 
                     b.Property<string>("Title")
                         .IsRequired()

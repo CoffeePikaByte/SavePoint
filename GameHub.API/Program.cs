@@ -11,6 +11,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using GameHub.API.Middleware;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -63,6 +64,10 @@ builder.Services.AddScoped<LoginUserUseCase>();
 builder.Services.AddScoped<GetUserProfileUseCase>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<CreateGameUseCase>();
+builder.Services.AddHttpClient<IExternalGameService, RawgGameService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.rawg.io/api/");
+});
 
 var secretKey = builder.Configuration["Jwt:SecretKey"];
 var issuer = builder.Configuration["Jwt:Issuer"];

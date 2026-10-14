@@ -25,6 +25,9 @@ public class GameConfiguration : IEntityTypeConfiguration<Game>
         builder.HasIndex(g => g.ExternalId)
             .IsUnique();
 
+        builder.Property(g => g.ReleaseDate)
+            .HasColumnType("date");
+
     }
 
 
