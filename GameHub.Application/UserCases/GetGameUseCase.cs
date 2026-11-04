@@ -15,8 +15,7 @@ public class GetGameUseCase
 
     public async Task<List<Game>> ExecuteAsync()
     {
-        
-        
+        return await _gameRepository.GetAllGamesAsync();
     }
 
 }

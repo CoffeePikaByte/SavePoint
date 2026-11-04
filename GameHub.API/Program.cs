@@ -64,6 +64,7 @@ builder.Services.AddScoped<LoginUserUseCase>();
 builder.Services.AddScoped<GetUserProfileUseCase>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<CreateGameUseCase>();
+builder.Services.AddScoped<GetGameUseCase>();
 builder.Services.AddHttpClient<IExternalGameService, RawgGameService>(client =>
 {
     client.BaseAddress = new Uri("https://api.rawg.io/api/");
@@ -119,3 +120,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Expose the entry point to the HTTP integration test host.
+public partial class Program { }

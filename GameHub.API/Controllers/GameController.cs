@@ -10,10 +10,20 @@ namespace GameHub.API.Controllers
     public class GameController : ControllerBase
     {
         private readonly CreateGameUseCase _createGameUseCase;
+        private readonly GetGameUseCase _getGameUseCase;
 
-        public GameController(CreateGameUseCase createGameUseCase)
+        public GameController(CreateGameUseCase createGameUseCase, GetGameUseCase getGameUseCase)
         {
             _createGameUseCase = createGameUseCase;
+            _getGameUseCase = getGameUseCase;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var games = await _getGameUseCase.ExecuteAsync();
+
+            return Ok(games);
         }
 
         [HttpPost]
