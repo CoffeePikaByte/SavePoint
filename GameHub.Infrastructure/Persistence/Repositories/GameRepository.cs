@@ -30,5 +30,8 @@ public class GameRepository : IGameRepository
         await _dbContext.SaveChangesAsync();
     }
 
-
+    public async Task<List<Game>> GetAllGamesAsync()
+    {
+        return await _dbContext.Games.ToListAsync();
+    }
 }

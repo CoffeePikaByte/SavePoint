@@ -9,4 +9,6 @@ public interface IGameRepository
 
     Task AddAsync(Game game);
 
+    Task<List<Game>> GetAllGamesAsync();
+
 }
