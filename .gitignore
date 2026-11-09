@@ -16,3 +16,27 @@ obj/
 appsettings.json
 
 appsettings.Development.json
+
+# Generated machine-specific skill registry and caches
+/.atl/
+
+# Local Codex state; preserve reviewed project instructions
+/.codex/*
+!/.codex/AGENTS.md
+!/.codex/engram-instructions.md
+!/.codex/engram-compact-prompt.md
+
+# Local Engram data; preserve shared project identity
+/.engram/*
+!/.engram/config.json
+
+# Environment secrets; allow sanitized templates
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Private keys and certificate bundles
+*.key
+*.pfx
+*.p12
