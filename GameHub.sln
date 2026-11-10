@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHub.Application.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHub.API.Tests", "GameHub.API.Tests\GameHub.API.Tests.csproj", "{7356D309-145D-49A7-BFA1-033DA1ABCA32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHub.Infrastructure.IntegrationTests", "GameHub.Infrastructure.IntegrationTests\GameHub.Infrastructure.IntegrationTests.csproj", "{23AA824F-9C17-4E5B-8A59-91EA313E852F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{23AA824F-9C17-4E5B-8A59-91EA313E852F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23AA824F-9C17-4E5B-8A59-91EA313E852F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23AA824F-9C17-4E5B-8A59-91EA313E852F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23AA824F-9C17-4E5B-8A59-91EA313E852F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{130FAC9A-AABC-484B-BA45-43C0017CE01B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{130FAC9A-AABC-484B-BA45-43C0017CE01B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{130FAC9A-AABC-484B-BA45-43C0017CE01B}.Release|Any CPU.ActiveCfg = Release|Any CPU
