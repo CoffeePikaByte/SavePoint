@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GameHub.API.Tests;
 
-public sealed class CatalogApiFactory : WebApplicationFactory<Program>
+public class CatalogApiFactory : WebApplicationFactory<Program>
 {
     public InMemoryGameRepository Repository { get; } = new();
     public FakeExternalGameService ExternalService { get; } = new();

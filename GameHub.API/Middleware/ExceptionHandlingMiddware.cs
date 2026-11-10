@@ -21,7 +21,7 @@ public class ExceptionHandlingMiddleware
         }
         catch (Exception ex)
         {
-            if(ex is UserNotFoundException)
+            if(ex is UserNotFoundException or GameNotFoundException)
             {
                 context.Response.StatusCode = 404;
                 await context.Response.WriteAsJsonAsync( new 
@@ -29,7 +29,7 @@ public class ExceptionHandlingMiddleware
                     message = ex.Message
                 });
 
-            }else if (ex is UserAlreadyExistsException)
+            }else if (ex is UserAlreadyExistsException or GameAlreadyInLibraryException)
             {
                 context.Response.StatusCode = 409; 
                 await context.Response.WriteAsJsonAsync( new

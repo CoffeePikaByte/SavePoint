@@ -65,6 +65,8 @@ builder.Services.AddScoped<GetUserProfileUseCase>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<CreateGameUseCase>();
 builder.Services.AddScoped<GetGameUseCase>();
+builder.Services.AddScoped<IUserGameRepository, UserGameRepository>();
+builder.Services.AddScoped<AddGameToLibraryUseCase>();
 builder.Services.AddHttpClient<IExternalGameService, RawgGameService>(client =>
 {
     client.BaseAddress = new Uri("https://api.rawg.io/api/");
