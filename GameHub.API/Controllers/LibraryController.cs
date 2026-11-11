@@ -9,8 +9,18 @@ namespace GameHub.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/library/games")]
-public class LibraryController(AddGameToLibraryUseCase addGameToLibrary) : ControllerBase
+public class LibraryController(
+    AddGameToLibraryUseCase addGameToLibrary, GetUserLibraryUseCase getUserLibrary) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) || userId == Guid.Empty)
+            return Unauthorized();
+
+        return Ok(await getUserLibrary.ExecuteAsync(userId));
+    }
+
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] AddLibraryGameRequest request)
     {

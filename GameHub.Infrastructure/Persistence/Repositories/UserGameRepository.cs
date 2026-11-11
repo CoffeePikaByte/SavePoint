@@ -29,7 +29,13 @@ public class UserGameRepository(GameHubDbContext context) : IUserGameRepository
         context.UserGames.SingleOrDefaultAsync(item => item.UserId == userId && item.GameId == gameId);
 
     public Task<List<UserGame>> GetByUserIdAsync(Guid userId) =>
-        context.UserGames.Where(item => item.UserId == userId).ToListAsync();
+        context.UserGames
+            .Where(item => item.UserId == userId)
+            .AsNoTracking()
+            .Include(item => item.Game)
+            .OrderByDescending(item => item.AddedAt)
+            .ThenBy(item => item.Id)
+            .ToListAsync();
 
     public async Task UpdateAsync(UserGame item)
     {

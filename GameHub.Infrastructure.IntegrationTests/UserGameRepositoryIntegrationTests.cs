@@ -10,6 +10,128 @@ namespace GameHub.Infrastructure.IntegrationTests;
 public class UserGameRepositoryIntegrationTests
 {
     [Fact]
+    public async Task GetByUserIdAsync_LoadsGameNavigationFromDatabase()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        await using (var writer = database.CreateContext())
+            await new UserGameRepository(writer).AddAsync(database.NewEntry());
+        await using var reader = database.CreateContext();
+        var item = Assert.Single(await new UserGameRepository(reader).GetByUserIdAsync(database.UserId));
+        Assert.NotNull(item.Game);
+        Assert.Equal(database.GameId, item.Game.Id);
+        Assert.Equal("Integration-only game", item.Game.Title);
+    }
+
+    [Fact]
+    public async Task GetByUserIdAsync_DoesNotTrackOrPersistChangesToReadResults()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        await using (var writer = database.CreateContext())
+            await new UserGameRepository(writer).AddAsync(database.NewEntry());
+        await using (var reader = database.CreateContext())
+        {
+            var item = Assert.Single(await new UserGameRepository(reader).GetByUserIdAsync(database.UserId));
+            Assert.Empty(reader.ChangeTracker.Entries());
+            item.HoursPlayed = 999;
+            Assert.Equal(0, await reader.SaveChangesAsync());
+        }
+        await using var verifier = database.CreateContext();
+        Assert.Null((await verifier.UserGames.SingleAsync()).HoursPlayed);
+    }
+
+    [Fact]
+    public async Task GetByUserIdAsync_LoadsGamesInStableOrderWithoutTrackingOrWrites()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var time = new DateTime(2026, 11, 11, 12, 0, 0, DateTimeKind.Utc);
+        var games = new[]
+        {
+            new Game { Id = Guid.NewGuid(), ExternalId = 41, Title = "Celeste", CoverUrl = "https://example.test/celeste.png", ReleaseDate = new DateTime(2018, 1, 25) },
+            new Game { Id = Guid.NewGuid(), ExternalId = 42, Title = "Hades" }
+        };
+        var older = database.NewEntry();
+        older.Id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        older.AddedAt = time.AddDays(-1);
+        var tieLast = database.NewEntry();
+        tieLast.Id = Guid.Parse("00000000-0000-0000-0000-000000000003");
+        tieLast.GameId = games[1].Id;
+        tieLast.Status = GameStatus.Complete;
+        tieLast.AddedAt = time;
+        var tieFirst = database.NewEntry();
+        tieFirst.Id = Guid.Parse("00000000-0000-0000-0000-000000000002");
+        tieFirst.GameId = games[0].Id;
+        tieFirst.Status = GameStatus.Playing;
+        tieFirst.HoursPlayed = 12;
+        tieFirst.AddedAt = time;
+        var other = database.NewEntry();
+        other.UserId = database.OtherUserId;
+        other.AddedAt = time.AddDays(1);
+        Game originalGame;
+        await using (var writer = database.CreateContext())
+        {
+            originalGame = await writer.Games.SingleAsync(game => game.Id == database.GameId);
+            writer.Games.AddRange(games);
+            await writer.SaveChangesAsync();
+            var repository = new UserGameRepository(writer);
+            // Deliberately not insertion order or Id order: both ordering keys must be applied.
+            foreach (var item in new[] { older, tieLast, other, tieFirst }) await repository.AddAsync(item);
+        }
+
+        var expected = new[] { tieFirst, tieLast, older };
+        var gameById = games.Append(originalGame).ToDictionary(game => game.Id);
+        await using (var reader = database.CreateContext())
+        {
+            var repository = new UserGameRepository(reader);
+            var result = await repository.GetByUserIdAsync(database.UserId);
+            Assert.Equal(expected.Select(item => item.Id), result.Select(item => item.Id));
+            for (var index = 0; index < result.Count; index++)
+            {
+                var actual = result[index];
+                var entry = expected[index];
+                var game = gameById[entry.GameId];
+                Assert.Equal(database.UserId, actual.UserId);
+                Assert.Equal(entry.GameId, actual.GameId);
+                Assert.NotNull(actual.Game);
+                Assert.Equal(game.Title, actual.Game.Title);
+                Assert.Equal(game.CoverUrl, actual.Game.CoverUrl);
+                Assert.Equal(game.ReleaseDate, actual.Game.ReleaseDate);
+                Assert.Equal(entry.Status, actual.Status);
+                Assert.Equal(entry.HoursPlayed, actual.HoursPlayed);
+                Assert.Equal(entry.AddedAt, actual.AddedAt);
+            }
+            Assert.Equal(expected.Select(item => item.Id), (await repository.GetByUserIdAsync(database.UserId)).Select(item => item.Id));
+            Assert.Equal(other.Id, Assert.Single(await repository.GetByUserIdAsync(database.OtherUserId)).Id);
+            Assert.Empty(reader.ChangeTracker.Entries());
+            result[0].HoursPlayed = 999;
+            result[0].Game.Title = "Must not persist from this read";
+            Assert.Equal(0, await reader.SaveChangesAsync());
+        }
+        await using var verifier = database.CreateContext();
+        Assert.Equal(4, await verifier.UserGames.CountAsync());
+        Assert.Equal(3, await verifier.Games.CountAsync());
+        Assert.Equal(12, (await verifier.UserGames.SingleAsync(item => item.Id == tieFirst.Id)).HoursPlayed);
+        Assert.Equal(games[0].Title, (await verifier.Games.SingleAsync(game => game.Id == games[0].Id)).Title);
+    }
+
+    [Fact]
+    public async Task GetByUserIdAsync_EmptyForUserDespiteOtherUsersPersistedEntries()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var other = database.NewEntry();
+        other.UserId = database.OtherUserId;
+        await using (var writer = database.CreateContext())
+            await new UserGameRepository(writer).AddAsync(other);
+        await using (var reader = database.CreateContext())
+        {
+            Assert.Empty(await new UserGameRepository(reader).GetByUserIdAsync(database.UserId));
+            Assert.Empty(reader.ChangeTracker.Entries());
+            Assert.Equal(0, await reader.SaveChangesAsync());
+        }
+        await using var verifier = database.CreateContext();
+        Assert.Equal(other.Id, (await verifier.UserGames.SingleAsync()).Id);
+    }
+
+    [Fact]
     public async Task AddAsync_PersistsFields_ReadableFromAnotherContext()
     {
         await using var database = await TestDatabase.CreateAsync();

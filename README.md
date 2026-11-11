@@ -39,7 +39,7 @@ Tecnologias utilizadas en el proyecto
     · Docker (más adelante)
 
 Estado del proyecto
-    Actualmente el backend dispone de autenticación, catálogo local y la operación de incorporación a la biblioteca descrita a continuación.
+    Actualmente el backend dispone de autenticación, catálogo local e incorporación y consulta de la biblioteca personal.
 
 Biblioteca personal: agregar un juego
     POST /api/library/games
@@ -52,6 +52,18 @@ Biblioteca personal: agregar un juego
     El estado inicial 0 corresponde a BackLog. No se incluyen entidades de navegación ni una URL de consulta aún no implementada.
     Errores: 400 para gameId ausente o inválido; 401 para JWT ausente, inválido o vencido, o identidad ausente/inválida; 404 para usuario o juego inexistente; 409 si el mismo usuario ya tiene el juego.
     El índice único (UserId, GameId) ya figura en la migración inicial. El repositorio traduce únicamente la violación de ese índice a conflicto; otros errores mantienen el manejo habitual.
+
+Biblioteca personal: consultar juegos
+    GET /api/library/games
+    Authorization: Bearer <JWT válido>
+
+    La identidad proviene exclusivamente del JWT validado; un parámetro userId no permite consultar otra cuenta. El usuario debe seguir existiendo, igual que en POST.
+    Respuesta 200: un array de elementos con id (de la incorporación), gameId, title, coverUrl, releaseDate, status, hoursPlayed y addedAt. Una biblioteca vacía devuelve [], incluso si otros usuarios tienen juegos.
+    Los campos conservan los tipos del modelo: status se serializa como número; coverUrl, releaseDate y hoursPlayed pueden ser null. releaseDate conserva DateTime? y addedAt es una fecha UTC. El DTO del POST no cambia.
+    Orden: addedAt descendente y, cuando coincida, id ascendente. No hay paginación ni filtros adicionales.
+    Errores: 401 para JWT ausente, inválido o vencido, o identidad ausente/inválida; 404 para usuario eliminado.
+    El repositorio filtra UserId en PostgreSQL antes de materializar, carga Game mediante Include y utiliza AsNoTracking. Application convierte el resultado en DTO; no se exponen entidades ni navegaciones EF, no se consulta RAWG y no se escriben datos.
+    Las pruebas unitarias verifican el mapeo y el usuario solicitado; las HTTP prueban el contrato JSON, identidad e aislamiento; PostgreSQL verifica persistencia con otro contexto, navegación Game, orden con desempates, biblioteca vacía y ausencia de tracking/escrituras. Se conservan las regresiones del POST.
 
     Build y pruebas rápidas (sin PostgreSQL):
         dotnet build GameHub.sln
