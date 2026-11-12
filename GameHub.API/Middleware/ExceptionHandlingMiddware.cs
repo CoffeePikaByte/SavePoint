@@ -21,7 +21,12 @@ public class ExceptionHandlingMiddleware
         }
         catch (Exception ex)
         {
-            if(ex is UserNotFoundException or GameNotFoundException)
+            if (ex is InvalidLibraryGameUpdateException)
+            {
+                context.Response.StatusCode = 400;
+                await context.Response.WriteAsJsonAsync(new { message = ex.Message });
+            }
+            else if(ex is UserNotFoundException or GameNotFoundException or LibraryGameNotFoundException)
             {
                 context.Response.StatusCode = 404;
                 await context.Response.WriteAsJsonAsync( new 

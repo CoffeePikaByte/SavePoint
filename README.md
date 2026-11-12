@@ -65,6 +65,22 @@ Biblioteca personal: consultar juegos
     El repositorio filtra UserId en PostgreSQL antes de materializar, carga Game mediante Include y utiliza AsNoTracking. Application convierte el resultado en DTO; no se exponen entidades ni navegaciones EF, no se consulta RAWG y no se escriben datos.
     Las pruebas unitarias verifican el mapeo y el usuario solicitado; las HTTP prueban el contrato JSON, identidad e aislamiento; PostgreSQL verifica persistencia con otro contexto, navegación Game, orden con desempates, biblioteca vacía y ausencia de tracking/escrituras. Se conservan las regresiones del POST.
 
+Biblioteca personal: actualizar estado y horas
+    PATCH /api/library/games/{gameId}
+    Authorization: Bearer <JWT válido>
+    Content-Type: application/json
+    Ejemplo: { "status": 2, "hoursPlayed": 12 }
+
+    gameId identifica el juego del catálogo, no el Id de la incorporación. El usuario se obtiene únicamente del JWT; userId en cuerpo o query se rechaza. No se puede modificar una incorporación ajena.
+    Campos omitidos conservan su valor. hoursPlayed:null borra las horas; hoursPlayed:0 registra cero. status:null es inválido. status acepta los números enteros 0 (BackLog), 1 (Playing), 2 (Complete) y 3 (Dropped). hoursPlayed admite null o un entero JSON entre 0 y 2147483647, no cadenas ni fracciones.
+    Se requiere al menos un campo: un cuerpo ausente, null, array o {} devuelve 400. Se rechazan propiedades desconocidas o repetidas, incluyendo userId, gameId, id y addedAt. Todos los valores se validan antes de modificar la entidad, incluso cuando una petición combina un estado válido con horas inválidas.
+    Respuesta 200: el mismo contrato LibraryGameDTO del POST (id, gameId, status, hoursPlayed y addedAt), sin entidades ni navegaciones. Enviar valores iguales a los actuales es válido y puede no producir UPDATE. Id, UserId, GameId y AddedAt no cambian; se conserva el orden del GET. No se consulta RAWG.
+    Errores: 400 para petición o valores inválidos; 401 para autenticación/identidad inválida; 404 para usuario eliminado o incorporación propia inexistente. Una incorporación ajena y una inexistente tienen el mismo error. Los errores de binding conservan la validación de ASP.NET Core; los errores de aplicación usan el campo message del middleware.
+    GetAsync carga la incorporación propia con tracking en el mismo DbContext que guarda. UpdateAsync exige una entidad existente rastreada por ese contexto y rechaza explícitamente entidades desconectadas; no usa DbSet.Update ni adjunta grafos. SaveChangesAsync conserva el seguimiento original y escribe solo los cambios detectados.
+    No hay ETags, tokens de versión ni protección contra pérdida de actualizaciones concurrentes del mismo campo. La prueba real con dos conexiones independientes comprueba que una actualización solo de Status no sobrescribe HoursPlayed ya guardado por otro contexto. Esto no es una garantía general de concurrencia ni un snapshot HTTP protegido.
+    Si un guardado produce DbUpdateConcurrencyException, se devuelve 404 solo para la entidad esperada y tras confirmar en la base que desapareció. Si la fila sigue existiendo o no se puede confirmar la eliminación, el error no se transforma en 404. Una eliminación posterior a una lectura o a una petición sin cambios efectivos no se detecta necesariamente. No se agregan migraciones: las validaciones de enum y horas están en Application, no en nuevas restricciones de base de datos.
+    Las pruebas PostgreSQL incluyen un trigger únicamente en una base descartable para producir cero filas actualizadas sin eliminar la incorporación; ese caso debe conservar el error de concurrencia, no devolver un falso 404. El runner, sus controles de identidad y su limpieza permanecen sin cambios.
+
     Build y pruebas rápidas (sin PostgreSQL):
         dotnet build GameHub.sln
         dotnet test GameHub.Application.Tests/GameHub.Application.Tests.csproj

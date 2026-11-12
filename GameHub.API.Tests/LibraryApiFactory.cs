@@ -77,6 +77,8 @@ public sealed class LibraryApiFactory : CatalogApiFactory
         public Exception? SaveError { get; set; }
         public int AddCalls { get; private set; }
         public int ListReads { get; private set; }
+        public int UpdateCalls { get; private set; }
+        public Exception? UpdateError { get; set; }
         public Task<UserGame?> GetAsync(Guid userId, Guid gameId) =>
             Task.FromResult(Items.SingleOrDefault(item => item.UserId == userId && item.GameId == gameId));
         public Task AddAsync(UserGame item)
@@ -98,7 +100,14 @@ public sealed class LibraryApiFactory : CatalogApiFactory
                     Status = item.Status, HoursPlayed = item.HoursPlayed, AddedAt = item.AddedAt
                 }).ToList());
         }
-        public Task UpdateAsync(UserGame item) => throw new NotSupportedException();
+        public Task UpdateAsync(UserGame item)
+        {
+            UpdateCalls++;
+            if (!Items.Any(existing => ReferenceEquals(existing, item)))
+                throw new InvalidOperationException("The test update requires a loaded entry.");
+            if (UpdateError is not null) throw UpdateError;
+            return Task.CompletedTask;
+        }
         public Task DeleteAsync(UserGame item) => throw new NotSupportedException();
     }
 }
